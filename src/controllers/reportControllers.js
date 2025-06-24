@@ -1,4 +1,7 @@
 const reportService = require('../services/reportServices');
+const { PrismaClient } = require('@prisma/client');
+
+const prisma = new PrismaClient();
 
 exports.getAllEvents = async (req, res) => {
   try {
@@ -48,7 +51,7 @@ exports.deleteReport = async (req, res) => {
 
 exports.getAllReports = async (req, res) => {
   try {
-    const reports = await reportService.getAllReports();
+    const reports = await prisma.reportEmergency.findMany();
     res.json(reports);
   } catch (err) {
     res.status(500).json({ error: err.message });
