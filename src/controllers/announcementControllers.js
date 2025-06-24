@@ -47,5 +47,10 @@ exports.deleteAnnouncement = async (req, res) => {
 };
 
 exports.getAllAnnouncements = async (req, res) => {
-  // your code here
+  try {
+    const announcements = await announcementService.getAllAnnouncements();
+    res.json(announcements);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 };

@@ -2,13 +2,11 @@ const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
 async function main() {
-  await prisma.event.createMany({
+  await prisma.announcement.createMany({
     data: [
       {
-        title: 'event-test-title',
-        description: 'event-test-description',
-        date: '2025-01-01T12:00:00.000Z',
-        time: '12:00',
+        title: 'announcement-test-title',
+        description: 'announcement-test-description',
       },
     ],
     skipDuplicates: true,
