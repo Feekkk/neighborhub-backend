@@ -2,15 +2,16 @@ const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
 async function main() {
-  await prisma.user.createMany({
+  await prisma.event.createMany({
     data: [
       {
-        username: 'testuser1',
-        email: 'test1@example.com',
-        password: 'hashedpassword1',
+        title: 'event-test-title',
+        description: 'event-test-description',
+        date: '2025-01-01T12:00:00.000Z',
+        time: '12:00',
       },
     ],
-    skipDuplicates: true, // Optional: skips if email/username already exists
+    skipDuplicates: true,
   });
   console.log('Seed data inserted!');
 }
