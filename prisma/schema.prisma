@@ -40,3 +40,15 @@ model Announcement {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+
+model ReportEmergency {
+  id        String   @id @default(uuid())
+  title     String
+  description String
+  latitude Float
+  longitude Float
+  time String @default("12:00")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
