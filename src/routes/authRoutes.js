@@ -7,14 +7,33 @@ const prisma = require('../config/prisma');
 router.post('/register', async (req, res) => {
   try {
     const { username, email, password } = req.body;
+    
+    // Check if all required fields are present
+    if (!username || !email || !password) {
+      return res.status(400).json({ 
+        error: 'Username, email, and password are required' 
+      });
+    }
+    
     const hashedPassword = await bcrypt.hash(password, 10);
     
     const user = await prisma.user.create({
-      data: { username, email, password: hashedPassword }
+      data: {
+        username,
+        email,
+        password: hashedPassword
+      }
     });
     
     const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET);
-    res.json({ token, user: { id: user.id, username, email } });
+    res.json({ 
+      token, 
+      user: { 
+        id: user.id, 
+        username: user.username, 
+        email: user.email 
+      } 
+    });
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
