@@ -4,6 +4,19 @@ const app = express();
 
 app.use(express.json());
 app.use(cors());
+app.get('/', (req, res) => {
+  res.json({ 
+    message: 'Welcome to NeighborHub API',
+    version: '1.0.0',
+    endpoints: {
+      users: '/api/users',
+      events: '/api/events',
+      announcements: '/api/announcements',
+      reports: '/api/reports',
+      auth: '/api/auth'
+    }
+  });
+});
 
 // Import routes
 const userRoutes = require('./routes/userRoutes');

@@ -2,9 +2,12 @@ const eventService = require('../services/eventServices');
 
 exports.getAllEvents = async (req, res) => {
   try {
+    console.log('Fetching all events...'); // Add this debug log
     const events = await eventService.getAllEvents();
+    console.log('Events found:', events.length); // Add this debug log
     res.json(events);
   } catch (err) {
+    console.error('Error fetching events:', err); // Add this debug log
     res.status(500).json({ error: err.message });
   }
 };
@@ -21,9 +24,12 @@ exports.getEventById = async (req, res) => {
 
 exports.createEvent = async (req, res) => {
   try {
+    console.log('Creating event with data:', req.body); // Add this debug log
     const event = await eventService.createEvent(req.body);
+    console.log('Event created:', event); // Add this debug log
     res.status(201).json(event);
   } catch (err) {
+    console.error('Error creating event:', err); // Add this debug log
     res.status(400).json({ error: err.message });
   }
 };
