@@ -9,6 +9,12 @@ generator client {
   binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
 }
 
+enum Priority {
+  HIGH
+  MEDIUM
+  LOW
+}
+
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
@@ -29,6 +35,7 @@ model Event {
   description String
   date DateTime
   time String @default("12:00")
+  priority Priority @default(MEDIUM)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -37,6 +44,7 @@ model Announcement {
   id        String   @id @default(uuid())
   title     String
   description String
+  priority Priority @default(MEDIUM)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -49,6 +57,7 @@ model ReportEmergency {
   longitude Float
   time String @default("12:00")
   resolvedAt String @default("12:00")
+  priority Priority @default(HIGH)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }

@@ -1,6 +1,6 @@
 const announcementService = require('../services/announcementServices');
 
-exports.getAllEvents = async (req, res) => {
+exports.getAllAnnouncements = async (req, res) => {
   try {
     const announcements = await announcementService.getAllAnnouncements();
     res.json(announcements);
@@ -43,14 +43,5 @@ exports.deleteAnnouncement = async (req, res) => {
     res.status(204).send();
   } catch (err) {
     res.status(400).json({ error: err.message });
-  }
-};
-
-exports.getAllAnnouncements = async (req, res) => {
-  try {
-    const announcements = await announcementService.getAllAnnouncements();
-    res.json(announcements);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
   }
 };
