@@ -4,8 +4,9 @@ const userController = require('../controllers/userController');
 const authMiddleware = require('../middlewares/authMiddleware');
 
 // Public routes (or admin only - you can decide)
-router.get('/', authMiddleware, userController.getAllUsers);
-router.get('/:id', authMiddleware, userController.getUserById);
+// add this after this "authMiddleware'"
+router.get('/', userController.getAllUsers);
+router.get('/:id', userController.getUserById);
 
 // Protected routes (Admin only)
 router.post('/', authMiddleware, userController.createUser);
