@@ -5,7 +5,7 @@ const authMiddleware = require('../middlewares/authMiddleware');
 
 router.get('/', reportController.getAllReports);
 router.get('/:id', reportController.getReportById);
-router.post('/', authMiddleware, reportController.createReport);
+router.post('/', reportController.createReport);
 router.put('/:id', authMiddleware, reportController.updateReport);
 router.delete('/:id', authMiddleware, reportController.deleteReport);
 
