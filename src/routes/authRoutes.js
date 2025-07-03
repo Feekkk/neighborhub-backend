@@ -6,12 +6,19 @@ const prisma = require('../config/prisma');
 
 router.post('/register', async (req, res) => {
   try {
-    const { username, email, password } = req.body;
+    const { username, email, password, phoneNumber, address, gender, birthday } = req.body;
     
     // Check if all required fields are present
     if (!username || !email || !password) {
       return res.status(400).json({ 
         error: 'Username, email, and password are required' 
+      });
+    }
+    
+    // Validate gender if provided
+    if (gender && !['MALE', 'FEMALE'].includes(gender)) {
+      return res.status(400).json({ 
+        error: 'Invalid gender value' 
       });
     }
     
@@ -21,20 +28,40 @@ router.post('/register', async (req, res) => {
       data: {
         username,
         email,
-        password: hashedPassword
+        password: hashedPassword,
+        phoneNumber: phoneNumber || null,
+        address: address || null,
+        gender: gender || null,
+        birthday: birthday ? new Date(birthday) : null
       }
     });
     
-    const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET);
+    const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, { expiresIn: '7d' });
+    
     res.json({ 
       token, 
       user: { 
         id: user.id, 
         username: user.username, 
-        email: user.email 
+        email: user.email,
+        phoneNumber: user.phoneNumber,
+        address: user.address,
+        gender: user.gender,
+        birthday: user.birthday
       } 
     });
   } catch (error) {
+    if (error.code === 'P2002') {
+      if (error.meta?.target?.includes('username')) {
+        return res.status(400).json({ error: 'Username already exists' });
+      }
+      if (error.meta?.target?.includes('email')) {
+        return res.status(400).json({ error: 'Email already exists' });
+      }
+      if (error.meta?.target?.includes('phoneNumber')) {
+        return res.status(400).json({ error: 'Phone number already exists' });
+      }
+    }
     res.status(400).json({ error: error.message });
   }
 });

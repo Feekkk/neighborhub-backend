@@ -21,12 +21,19 @@ exports.getUserById = async (req, res) => {
 
 exports.createUser = async (req, res) => {
   try {
-    const { username, email, password } = req.body;
+    const { username, email, password, phoneNumber, address, gender, birthday } = req.body;
     
-    // Validation
+    // Basic validation
     if (!username || !email || !password) {
       return res.status(400).json({ 
         error: 'Username, email, and password are required' 
+      });
+    }
+    
+    // Validate gender if provided
+    if (gender && !['MALE', 'FEMALE'].includes(gender)) {
+      return res.status(400).json({ 
+        error: 'Invalid gender value' 
       });
     }
     
@@ -40,6 +47,11 @@ exports.createUser = async (req, res) => {
       return res.status(400).json({ error: 'Email already exists' });
     }
     
+    // Check if phone number already exists (if provided)
+    if (phoneNumber && await userService.checkPhoneExists(phoneNumber)) {
+      return res.status(400).json({ error: 'Phone number already exists' });
+    }
+    
     const user = await userService.createUser(req.body);
     res.status(201).json(user);
   } catch (err) {
@@ -49,14 +61,20 @@ exports.createUser = async (req, res) => {
 
 exports.updateUser = async (req, res) => {
   try {
-    const { username, email } = req.body;
+    const { username, email, phoneNumber, gender } = req.body;
     const userId = req.params.id;
+    
+    // Validate gender if provided
+    if (gender && !['MALE', 'FEMALE'].includes(gender)) {
+      return res.status(400).json({ 
+        error: 'Invalid gender value' 
+      });
+    }
     
     // Check if username is being changed and already exists
     if (username) {
       const existingUser = await userService.checkUsernameExists(username);
       if (existingUser) {
-        // Check if it's not the same user
         const currentUser = await userService.getUserById(userId);
         if (currentUser && currentUser.username !== username) {
           return res.status(400).json({ error: 'Username already exists' });
@@ -68,10 +86,20 @@ exports.updateUser = async (req, res) => {
     if (email) {
       const existingUser = await userService.checkEmailExists(email);
       if (existingUser) {
-        // Check if it's not the same user
         const currentUser = await userService.getUserById(userId);
         if (currentUser && currentUser.email !== email) {
           return res.status(400).json({ error: 'Email already exists' });
+        }
+      }
+    }
+    
+    // Check if phone number is being changed and already exists
+    if (phoneNumber) {
+      const existingUser = await userService.checkPhoneExists(phoneNumber);
+      if (existingUser) {
+        const currentUser = await userService.getUserById(userId);
+        if (currentUser && currentUser.phoneNumber !== phoneNumber) {
+          return res.status(400).json({ error: 'Phone number already exists' });
         }
       }
     }
