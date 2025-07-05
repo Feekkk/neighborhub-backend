@@ -1,4 +1,5 @@
 const reportService = require('../services/reportServices');
+const pdfService = require('../services/pdfServices');
 const { PrismaClient } = require('@prisma/client');
 
 const prisma = new PrismaClient();
@@ -46,6 +47,44 @@ exports.deleteReport = async (req, res) => {
     res.status(204).send();
   } catch (err) {
     res.status(400).json({ error: err.message });
+  }
+};
+
+// Generate PDF for all emergency reports
+exports.generateAllReportsPDF = async (req, res) => {
+  try {
+    const pdfBuffer = await pdfService.generateEmergencyReportsPDF();
+    
+    // Set response headers for PDF
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', 'attachment; filename="emergency-reports.pdf"');
+    res.setHeader('Content-Length', pdfBuffer.length);
+    
+    // Send PDF buffer
+    res.send(pdfBuffer);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+// Generate PDF for a specific emergency report
+exports.generateSingleReportPDF = async (req, res) => {
+  try {
+    const pdfBuffer = await pdfService.generateSingleReportPDF(req.params.id);
+    
+    // Set response headers for PDF
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename="emergency-report-${req.params.id}.pdf"`);
+    res.setHeader('Content-Length', pdfBuffer.length);
+    
+    // Send PDF buffer
+    res.send(pdfBuffer);
+  } catch (err) {
+    if (err.message === 'Report not found') {
+      res.status(404).json({ error: 'Report not found' });
+    } else {
+      res.status(500).json({ error: err.message });
+    }
   }
 };
 
