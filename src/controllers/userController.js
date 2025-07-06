@@ -119,3 +119,97 @@ exports.deleteUser = async (req, res) => {
     res.status(400).json({ error: err.message });
   }
 };
+
+// Request password reset
+exports.requestPasswordReset = async (req, res) => {
+  try {
+    const { email } = req.body;
+    
+    if (!email) {
+      return res.status(400).json({ error: 'Email is required' });
+    }
+    
+    // Check if user exists
+    const user = await userService.getUserByEmail(email);
+    if (!user) {
+      // Don't reveal if email exists or not for security
+      return res.json({ 
+        message: 'If the email exists, a password reset link has been sent' 
+      });
+    }
+    
+    // Generate reset token
+    const { resetToken } = await userService.generateResetToken(email);
+    
+    // Send email
+    await userService.sendPasswordResetEmail(email, resetToken);
+    
+    res.json({ 
+      message: 'If the email exists, a password reset link has been sent' 
+    });
+  } catch (err) {
+    console.error('Password reset request error:', err);
+    res.status(500).json({ error: 'Failed to process password reset request' });
+  }
+};
+
+// Verify reset token
+exports.verifyResetToken = async (req, res) => {
+  try {
+    const { token } = req.params;
+    
+    if (!token) {
+      return res.status(400).json({ error: 'Reset token is required' });
+    }
+    
+    const user = await userService.verifyResetToken(token);
+    
+    if (!user) {
+      return res.status(400).json({ error: 'Invalid or expired reset token' });
+    }
+    
+    res.json({ 
+      valid: true, 
+      message: 'Token is valid',
+      email: user.email // Can be used to show which account is being reset
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+// Reset password with token
+exports.resetPassword = async (req, res) => {
+  try {
+    const { token, newPassword } = req.body;
+    
+    if (!token || !newPassword) {
+      return res.status(400).json({ 
+        error: 'Token and new password are required' 
+      });
+    }
+    
+    // Validate password strength
+    if (newPassword.length < 6) {
+      return res.status(400).json({ 
+        error: 'Password must be at least 6 characters long' 
+      });
+    }
+    
+    const user = await userService.resetPasswordWithToken(token, newPassword);
+    
+    res.json({ 
+      message: 'Password reset successfully',
+      user: {
+        id: user.id,
+        username: user.username,
+        email: user.email
+      }
+    });
+  } catch (err) {
+    if (err.message === 'Invalid or expired reset token') {
+      return res.status(400).json({ error: err.message });
+    }
+    res.status(500).json({ error: err.message });
+  }
+};

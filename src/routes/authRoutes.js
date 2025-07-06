@@ -3,6 +3,7 @@ const router = express.Router();
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const prisma = require('../config/prisma');
+const userController = require('../controllers/userController');
 
 router.post('/register', async (req, res) => {
   try {
@@ -139,5 +140,10 @@ router.post('/admin/login', async (req, res) => {
     res.status(400).json({ error: error.message });
   }
 });
+
+// Forget password routes
+router.post('/forgot-password', userController.requestPasswordReset);
+router.get('/verify-reset-token/:token', userController.verifyResetToken);
+router.post('/reset-password', userController.resetPassword);
 
 module.exports = router;
