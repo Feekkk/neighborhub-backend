@@ -9,6 +9,27 @@ exports.getAllAnnouncements = async (req, res) => {
   }
 };
 
+exports.getAnnouncementsWithExpiration = async (req, res) => {
+  try {
+    const announcements = await announcementService.getAnnouncementsWithExpirationInfo();
+    res.json(announcements);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+exports.getExpiringAnnouncements = async (req, res) => {
+  try {
+    const announcements = await announcementService.getExpiringAnnouncements();
+    res.json({
+      count: announcements.length,
+      announcements: announcements
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
 exports.getAnnouncementById = async (req, res) => {
   try {
     const announcement = await announcementService.getAnnouncementById(req.params.id);
@@ -43,5 +64,17 @@ exports.deleteAnnouncement = async (req, res) => {
     res.status(204).send();
   } catch (err) {
     res.status(400).json({ error: err.message });
+  }
+};
+
+exports.performCleanup = async (req, res) => {
+  try {
+    const result = await announcementService.performCleanup();
+    res.json({
+      message: 'Cleanup completed successfully',
+      result: result
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
 };
