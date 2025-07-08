@@ -90,7 +90,45 @@ exports.generateSingleReportPDF = async (req, res) => {
 
 exports.getAllReports = async (req, res) => {
   try {
-    const reports = await prisma.reportEmergency.findMany();
+    const reports = await reportService.getAllReports();
+    res.json(reports);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+// Admin function to get all reports regardless of status
+exports.getAllReportsAdmin = async (req, res) => {
+  try {
+    const reports = await reportService.getAllReportsAdmin();
+    res.json(reports);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+// Update report status (for admin to mark as resolved/closed)
+exports.updateReportStatus = async (req, res) => {
+  try {
+    const { status } = req.body;
+    const validStatuses = ['OPEN', 'RESOLVED', 'CLOSED'];
+    
+    if (!validStatuses.includes(status)) {
+      return res.status(400).json({ error: 'Invalid status. Must be OPEN, RESOLVED, or CLOSED' });
+    }
+    
+    const report = await reportService.updateReport(req.params.id, { status });
+    res.json(report);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+};
+
+// Get reports by status
+exports.getReportsByStatus = async (req, res) => {
+  try {
+    const { status } = req.params;
+    const reports = await reportService.getReportsByStatus(status);
     res.json(reports);
   } catch (err) {
     res.status(500).json({ error: err.message });

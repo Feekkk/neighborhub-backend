@@ -20,6 +20,12 @@ enum Gender {
   FEMALE
 }
 
+enum ReportStatus {
+  OPEN
+  RESOLVED
+  CLOSED
+}
+
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
@@ -68,6 +74,7 @@ model ReportEmergency {
   longitude Float
   time String @default("12:00")
   resolvedAt String @default("12:00")
+  status    ReportStatus @default(OPEN)
   priority Priority @default(HIGH)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

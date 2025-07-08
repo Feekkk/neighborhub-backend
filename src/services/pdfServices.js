@@ -5,8 +5,8 @@ const reportService = require('./reportServices');
 exports.generateEmergencyReportsPDF = async () => {
   return new Promise(async (resolve, reject) => {
     try {
-      // Get all reports from database
-      const reports = await reportService.getAllReports();
+      // Get all reports from database (including resolved ones for PDF)
+      const reports = await reportService.getAllReportsAdmin();
       
       // Create a new PDF document
       const doc = new PDFDocument({

@@ -1,9 +1,27 @@
 // services
 const prisma = require('../config/prisma');
 
-// Get all reports
+// Get all reports (only OPEN status for regular users)
 exports.getAllReports = async () => {
+  return prisma.reportEmergency.findMany({
+    where: {
+      status: 'OPEN'
+    }
+  });
+};
+
+// Get all reports regardless of status (for admin/PDF generation)
+exports.getAllReportsAdmin = async () => {
   return prisma.reportEmergency.findMany();
+};
+
+// Get reports by status
+exports.getReportsByStatus = async (status) => {
+  return prisma.reportEmergency.findMany({
+    where: {
+      status: status
+    }
+  });
 };
 
 // Get report by ID
@@ -34,6 +52,7 @@ exports.getReportsInBounds = async (bounds) => {
   
   return prisma.reportEmergency.findMany({
     where: {
+      status: 'OPEN',
       latitude: {
         gte: southWest.lat,
         lte: northEast.lat
@@ -60,6 +79,7 @@ exports.getHeatmapData = async (bounds, gridSize = 0.01) => {
   
   const reports = await prisma.reportEmergency.findMany({
     where: {
+      status: 'OPEN',
       latitude: {
         gte: southWest.lat,
         lte: northEast.lat

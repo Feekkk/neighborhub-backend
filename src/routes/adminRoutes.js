@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const schedulerService = require('../services/schedulerService');
 const CleanupService = require('../services/cleanupService');
+const reportController = require('../controllers/reportController');
 const authMiddleware = require('../middlewares/authMiddleware');
 
 // Get scheduler status (admin only)
@@ -49,5 +50,10 @@ router.post('/cleanup/force', authMiddleware, async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+
+// Admin report management routes
+router.get('/reports/all', authMiddleware, reportController.getAllReportsAdmin);
+router.get('/reports/status/:status', authMiddleware, reportController.getReportsByStatus);
+router.put('/reports/:id/status', authMiddleware, reportController.updateReportStatus);
 
 module.exports = router;
