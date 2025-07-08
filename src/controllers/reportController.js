@@ -96,3 +96,125 @@ exports.getAllReports = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
+
+// Heatmap Controllers
+
+// Get heatmap data for Google Maps
+exports.getHeatmapData = async (req, res) => {
+  try {
+    const { neLat, neLng, swLat, swLng, gridSize } = req.query;
+    
+    // Validate required parameters
+    if (!neLat || !neLng || !swLat || !swLng) {
+      return res.status(400).json({ 
+        error: 'Missing required parameters: neLat, neLng, swLat, swLng' 
+      });
+    }
+
+    const bounds = {
+      northEast: { lat: parseFloat(neLat), lng: parseFloat(neLng) },
+      southWest: { lat: parseFloat(swLat), lng: parseFloat(swLng) }
+    };
+
+    const grid = gridSize ? parseFloat(gridSize) : 0.01;
+    const heatmapData = await reportService.getHeatmapData(bounds, grid);
+    
+    res.json({
+      success: true,
+      data: heatmapData,
+      bounds: bounds,
+      gridSize: grid,
+      timestamp: new Date().toISOString()
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+// Get reports within bounds for markers
+exports.getReportsInBounds = async (req, res) => {
+  try {
+    const { neLat, neLng, swLat, swLng } = req.query;
+    
+    if (!neLat || !neLng || !swLat || !swLng) {
+      return res.status(400).json({ 
+        error: 'Missing required parameters: neLat, neLng, swLat, swLng' 
+      });
+    }
+
+    const bounds = {
+      northEast: { lat: parseFloat(neLat), lng: parseFloat(neLng) },
+      southWest: { lat: parseFloat(swLat), lng: parseFloat(swLng) }
+    };
+
+    const reports = await reportService.getReportsInBounds(bounds);
+    
+    res.json({
+      success: true,
+      data: reports,
+      count: reports.length,
+      bounds: bounds
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+// Get heatmap statistics
+exports.getHeatmapStats = async (req, res) => {
+  try {
+    const { neLat, neLng, swLat, swLng } = req.query;
+    
+    if (!neLat || !neLng || !swLat || !swLng) {
+      return res.status(400).json({ 
+        error: 'Missing required parameters: neLat, neLng, swLat, swLng' 
+      });
+    }
+
+    const bounds = {
+      northEast: { lat: parseFloat(neLat), lng: parseFloat(neLng) },
+      southWest: { lat: parseFloat(swLat), lng: parseFloat(swLng) }
+    };
+
+    const stats = await reportService.getHeatmapStats(bounds);
+    
+    res.json({
+      success: true,
+      stats: stats,
+      bounds: bounds
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+// Get time-filtered heatmap data
+exports.getTimeBasedHeatmapData = async (req, res) => {
+  try {
+    const { neLat, neLng, swLat, swLng, timeFilter } = req.query;
+    
+    if (!neLat || !neLng || !swLat || !swLng) {
+      return res.status(400).json({ 
+        error: 'Missing required parameters: neLat, neLng, swLat, swLng' 
+      });
+    }
+
+    const bounds = {
+      northEast: { lat: parseFloat(neLat), lng: parseFloat(neLng) },
+      southWest: { lat: parseFloat(swLat), lng: parseFloat(swLng) }
+    };
+
+    const timeFilterValue = timeFilter || 'all';
+    const reports = await reportService.getTimeBasedHeatmapData(bounds, timeFilterValue);
+    
+    res.json({
+      success: true,
+      data: reports,
+      count: reports.length,
+      bounds: bounds,
+      timeFilter: timeFilterValue
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
